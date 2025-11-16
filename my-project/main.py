@@ -195,8 +195,8 @@ class SemicircleProblem(Scene):
         )
         
         # Новые подписи справа от полуокружности (ЕЩЕ ВЫШЕ)
-        cd_text = Text("CD = 6", font_size=24, color=YELLOW, font="Consolas")
-        tb_text = Text("TB = 15", font_size=24, color=YELLOW, font="Consolas")
+        cd_text = Text("CD=6", font_size=24, color=YELLOW, font="Consolas")
+        tb_text = Text("TB=15", font_size=24, color=YELLOW, font="Consolas")
         
         # Позиционируем ЕЩЕ ВЫШЕ и с маленьким margin
         text_position = RIGHT * (R_big + 1.5) + UP * 2.0  # Поднял выше
@@ -499,6 +499,55 @@ class SemicircleProblem(Scene):
             run_time=1.5
         )
         
-        self.wait(3)
         
+        # ДОБАВЛЯЕМ =qh к существующей подписи CD=6 (самое последнее действие)
+        cd_text_with_qh = Text("CD=QH=6", font_size=24, color=YELLOW, font="Consolas")
+        cd_text_with_qh.move_to(cd_text.get_center())
+        
+        self.play(
+            Transform(cd_text, cd_text_with_qh),
+            run_time=1
+        )
+        
+        self.wait(2)
+        
+        # 12. Обозначаем равенство углов HQB, TO_smallQ и DAB синими рисками
+        # Угол HQB (в точке Q между QH и QB) - стандартная одинарная риска
+        QH_dir = (H_point - Q_point) / np.linalg.norm(H_point - Q_point)
+        QB_dir = (B - Q_point) / np.linalg.norm(B - Q_point)
+        
+        # Нормализуем и находим биссектрису для угла HQB
+        hqb_bisector = (QH_dir + QB_dir) / np.linalg.norm(QH_dir + QB_dir)
+        hqb_risk = Arc(radius=0.35, start_angle=np.arctan2(hqb_bisector[1], hqb_bisector[0]) - PI/8, 
+                      angle=PI/4, color=RED, stroke_width=4)
+        hqb_risk.move_arc_center_to(Q_point)
+        
+        # Угол между векторами O_smallT и O_smallQ (в точке O_small)
+        O_smallT_dir = (T - O_small) / np.linalg.norm(T - O_small)
+        O_smallQ_dir = (Q_point - O_small) / np.linalg.norm(Q_point - O_small)
+        
+        o_small_angle_bisector = (O_smallT_dir + O_smallQ_dir) / np.linalg.norm(O_smallT_dir + O_smallQ_dir)
+        o_small_risk = Arc(radius=0.35, start_angle=np.arctan2(o_small_angle_bisector[1], o_small_angle_bisector[0]) - PI/8,
+                          angle=PI/4, color=RED, stroke_width=4)
+        o_small_risk.move_arc_center_to(O_small)
+        
+        # Угол DAB (в точке A между AD и AB) - одинарная риска
+        AD_dir = (D - A) / np.linalg.norm(D - A)
+        AB_dir = (B - A) / np.linalg.norm(B - A)
+        
+        dab_bisector = (AD_dir + AB_dir) / np.linalg.norm(AD_dir + AB_dir)
+        dab_risk = Arc(radius=0.35, start_angle=np.arctan2(dab_bisector[1], dab_bisector[0]) - PI/8,
+                      angle=PI/4, color=RED, stroke_width=4)
+        dab_risk.move_arc_center_to(A)
+        
+        # Показываем риски одновременно
+        self.play(
+            Create(hqb_risk),
+            Create(o_small_risk),
+            Create(dab_risk),
+            run_time=1.5
+        )
+        
+        self.wait(2)
+
 #manim main.py SemiCircleScene -pql
