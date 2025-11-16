@@ -550,4 +550,61 @@ class SemicircleProblem(Scene):
         
         self.wait(2)
 
+          # 1. Полупрозрачная заливка треугольника OoT и первое уравнение
+        triangle_OO_small_T = Polygon(O_point, O_small, T, color=BLUE, fill_opacity=0.3, stroke_width=2)
+        equation1 = MathTex("(R-15)^2 + r^2 = (R-r)^2", font_size=36)
+        equation1.move_to(DOWN)
+        
+        self.play(
+            Create(triangle_OO_small_T),
+            Write(equation1),
+            run_time=2
+        )
+        self.wait(2)
+        
+        # 2. Fadeout только заливку
+        self.play(
+            FadeOut(triangle_OO_small_T),
+            run_time=1
+        )
+        self.wait(1)
+        
+        # 3. Разными цветами заливаем треугольники ACQ, ADB и QHB
+        triangle_ACQ = Polygon(A, C, Q_point, color=RED, fill_opacity=0.3, stroke_width=2)
+        triangle_ADB = Polygon(A, D, B, color=GREEN, fill_opacity=0.3, stroke_width=2)
+        triangle_QHB = Polygon(Q_point, H_point, B, color=ORANGE, fill_opacity=0.3, stroke_width=2)
+        
+        similarity_text = MathTex("ACQ \\sim ADB \\sim QHB", font_size=36)
+        similarity_text.move_to(DOWN*2)
+        
+        self.play(
+            Create(triangle_ACQ),
+            Create(triangle_ADB),
+            Create(triangle_QHB),
+            Write(similarity_text),
+            run_time=2
+        )
+        self.wait(3)
+        
+        # 4. Fadeout надпись и все заливки
+        self.play(
+            FadeOut(triangle_ACQ),
+            FadeOut(triangle_ADB),
+            FadeOut(triangle_QHB),
+            FadeOut(similarity_text),
+            run_time=1.5
+        )
+        self.wait(1)
+        
+        # 5. Вместо надписи пишем финальное уравнение
+        equation2 = MathTex(r"\frac{2R - 15}{2R - 15 + x} = \frac{r}{\sqrt{r^2 + x^2}} = \frac{6}{15 - x}", font_size=36)
+        equation2.move_to(DOWN * 2)
+        
+        self.play(
+            Write(equation2),
+            run_time=2
+        )
+        
+        self.wait(3)
+
 #manim main.py SemiCircleScene -pql
