@@ -1,6 +1,7 @@
 from manim import *
 import numpy as np
 
+
 class SemicircleProblem(Scene):
     def __init__(self):
         super().__init__()
@@ -152,21 +153,21 @@ class SemicircleProblem(Scene):
         
         # Отрезок CD (изначально белый)
         CD_line_white = Line(C, D, color=WHITE, stroke_width=4)
-        CD_line_yellow = Line(C, D, color=YELLOW, stroke_width=5)
+        CD_line_yellow = Line(C, D, color=YELLOW, stroke_width=4)
         
         # Отрезок TB (изначально белый)
         TB_line_white = Line(T, B, color=WHITE, stroke_width=4)
-        TB_line_yellow = Line(T, B, color=YELLOW, stroke_width=5)
+        TB_line_yellow = Line(T, B, color=YELLOW, stroke_width=4)
         
         # Создаем отрезки белыми
         self.play(Create(CD_line_white), Create(TB_line_white), run_time=1)
         
         # Подписи 6 и 15 - РОВНО ПО ЦЕНТРУ ОТРЕЗКОВ
-        label_6 = Text("6", font_size=28, color=YELLOW)
+        label_6 = Text("6", font_size=28, color=YELLOW, font = "Consolas")
         label_6.move_to((C + D) / 2)  # Точный центр отрезка CD
         label_6.shift(UP * 0.3)  # Немного выше отрезка
         
-        label_15 = Text("15", font_size=28, color=YELLOW)
+        label_15 = Text("15", font_size=28, color=YELLOW, font = "Consolas")
         label_15.move_to((T + B) / 2)  # Точный центр отрезка TB
         label_15.shift(DOWN * 0.3)  # Немного ниже отрезка
         
@@ -179,7 +180,36 @@ class SemicircleProblem(Scene):
             run_time=2
         )
         
-        self.wait(1)
+        self.wait(5)
+
+        # ОБРАТНОЕ ИЗМЕНЕНИЕ ЦВЕТА на белый
+        CD_line_white_back = Line(C, D, color=WHITE, stroke_width=4)
+        TB_line_white_back = Line(T, B, color=WHITE, stroke_width=4)
+        
+        self.play(
+            Transform(CD_line_yellow, CD_line_white_back),
+            Transform(TB_line_yellow, TB_line_white_back),
+            FadeOut(label_6),
+            FadeOut(label_15),
+            run_time=1
+        )
+        
+        # Новые подписи справа от полуокружности (ЕЩЕ ВЫШЕ)
+        cd_text = Text("CD = 6", font_size=24, color=YELLOW, font="Consolas")
+        tb_text = Text("TB = 15", font_size=24, color=YELLOW, font="Consolas")
+        
+        # Позиционируем ЕЩЕ ВЫШЕ и с маленьким margin
+        text_position = RIGHT * (R_big + 1.5) + UP * 2.0  # Поднял выше
+        cd_text.move_to(text_position)
+        tb_text.move_to(text_position + DOWN * 0.4)  # Маленький отступ
+        
+        self.play(
+            Write(cd_text),
+            Write(tb_text),
+            run_time=1
+        )
+        
+        self.wait(5)
         
         # === ДОПОЛНИТЕЛЬНЫЕ ПОСТРОЕНИЯ ===
         
@@ -262,7 +292,7 @@ class SemicircleProblem(Scene):
         
         # 5. Подпись R появляется ПОСЛЕ исчезновения касательной
         R_label = Text("R", font_size=28, color=PURPLE)
-        R_position = O_small + (E - O_small) * 0.5
+        R_position = (O_big + E)/2
         R_label.move_to(R_position)
         R_label.shift(LEFT * 0.2 + UP * 0.1)
         
@@ -270,9 +300,205 @@ class SemicircleProblem(Scene):
         
         # Финальная пауза
         self.wait(3)
+               # === НОВЫЕ ПОСТРОЕНИЯ ===
+        
+        # 6. Выделение равенства отрезков AC и AT
+        # Создаем оранжевые версии отрезков
+        AC_line_colored = Line(A, C, color=ORANGE, stroke_width=5)
+        AT_line_colored = Line(A, T, color=ORANGE, stroke_width=5)
+        
+        # Подписи 2R-15 для обоих отрезков
+        AT_label = Text("2R-15", font_size=20, color=ORANGE, font = "Consolas")
+        AT_label.next_to((A + T) / 2, DOWN)
+        
+        AC_label = Text("2R-15", font_size=20, color=ORANGE, font = "Consolas")
+        AC_label.next_to((A + C) / 2, LEFT)
+        
+        # Одновременно окрашиваем оба отрезка
+        self.play(
+            Transform(Line(A, C, color=WHITE, stroke_width=4), AC_line_colored),
+            Transform(Line(A, T, color=WHITE, stroke_width=4), AT_line_colored),
+            Write(AT_label),
+            Write(AC_label),
+            run_time=1.5
+        )
+        
+               # 7. Перпендикуляр из центра малой окружности на AB
+        # Уже есть точка T - это основание перпендикуляра
+        # Показываем перпендикулярность отрезком O_small -> T
+        perpendicular_line = Line(O_small, T, color=GREEN, stroke_width=3)
+        
+        # ПРАВИЛЬНЫЙ прямой угол в точке T - стандартное обозначение
+        angle_length = 0.25
+        # Создаем квадратик в угле (стандартное обозначение)
+        # Первая линия - вдоль AB (от T влево)
+        angle_line1_start = T + LEFT * angle_length
+        angle_line1_end = angle_line1_start + UP * angle_length
+        angle_line1 = Line(angle_line1_start, angle_line1_end, color=YELLOW, stroke_width=3)
+        
+        # Вторая линия - вдоль перпендикуляра (от T вверх)
+        angle_line2_start = T + UP * angle_length  
+        angle_line2_end = angle_line2_start + LEFT * angle_length
+        angle_line2 = Line(angle_line2_start, angle_line2_end, color=YELLOW, stroke_width=3)
+        
+        angle_indicator = VGroup(angle_line1, angle_line2)
+        
+        self.play(
+            Create(perpendicular_line),
+            Create(angle_indicator),
+            run_time=1.5
+        )
+        
+        # 8. Прямая из точки C через центр O_small до пересечения с AB
+        line_dir_CQ = (O_small - C) / np.linalg.norm(O_small - C)
+        
+        # Находим пересечение с AB (y = 0)
+        if abs(line_dir_CQ[1]) > 1e-6:
+            t_intersect_Q = -C[1] / line_dir_CQ[1]
+            Q_point = C + t_intersect_Q * line_dir_CQ
+        else:
+            Q_point = C + line_dir_CQ * 5
+        
+        # Проверяем что точка Q лежит на отрезке AB
+        if Q_point[0] < A[0]:
+            Q_point = A
+        elif Q_point[0] > B[0]:
+            Q_point = B
+        
+        # Прямая C -> Q (через O_small)
+        line_CQ = Line(C, Q_point, color=PURPLE, stroke_width=3)
+        
+        # Точка Q на AB
+        dot_Q = Dot(Q_point, color=WHITE, radius=0.08)
+        label_Q = Text("Q", font_size=28, color=WHITE).next_to(Q_point, DOWN, buff=0.15)
+        
+        self.play(
+            Create(line_CQ),
+            Create(dot_Q),
+            Write(label_Q),
+            run_time=1.5
+        )
+        
+        # 9. Отрезок TQ и подпись X + дополнительные подписи
+        TQ_line = Line(T, Q_point, color=PINK, stroke_width=5)
+        X_label = Text("X", font_size=28, color=PINK)
+        X_label.move_to((T + Q_point) / 2)
+        X_label.shift(DOWN * 0.2)
+        
+        # Новые подписи: O_small->O = R-r, O->T = R-15, Q->B = 15-x, O_small->T = r
+        R_minus_r_label = Text("R-r", font_size=20, color=WHITE, font="Consolas")
+        R_minus_r_label.move_to((O_small + O_point) / 2)
+        R_minus_r_label.shift(LEFT * 0.3)
+        
+        R_minus_15_label = Text("R-15", font_size=20, color=WHITE, font="Consolas")
+        R_minus_15_label.move_to((O_point + T) / 2)
+        R_minus_15_label.shift(DOWN * 0.2)
+        
+        fifteen_minus_x_label = Text("15-x", font_size=20, color=WHITE, font="Consolas")
+        fifteen_minus_x_label.move_to((Q_point + B) / 2)
+        fifteen_minus_x_label.shift(DOWN * 0.2)
+        
+        # Подпись r на перпендикуляре O_small->T
+        r_perpendicular_label = Text("r", font_size=20, color=GREEN, font="Consolas")
+        r_perpendicular_label.move_to((O_small + T) / 2)
+        r_perpendicular_label.shift(LEFT * 0.2)
+        
+        self.play(
+            Create(TQ_line),
+            Write(X_label),
+            Write(R_minus_r_label),
+            Write(R_minus_15_label),
+            Write(fifteen_minus_x_label),
+            Write(r_perpendicular_label),
+            run_time=1.5
+        )
+        self.wait(3)
+        # 10. Соединяем D и B + обозначаем перпендикулярность углов
+        DB_line = Line(D, B, color=WHITE, stroke_width=3)
+        
+        # Обозначаем перпендикулярность углов ADB и ACQ
+        # Угол ADB (в точке D между AD и DB)
+        angle_ADB_length = 0.25
+        AD_dir = (A - D) / np.linalg.norm(A - D)
+        DB_dir = (B - D) / np.linalg.norm(B - D)
+        
+        # Квадратик для угла ADB
+        angle_ADB_line1_start = D + AD_dir * angle_ADB_length
+        angle_ADB_line1_end = angle_ADB_line1_start + DB_dir * angle_ADB_length
+        angle_ADB_line1 = Line(angle_ADB_line1_start, angle_ADB_line1_end, color=YELLOW, stroke_width=3)
+        
+        angle_ADB_line2_start = D + DB_dir * angle_ADB_length
+        angle_ADB_line2_end = angle_ADB_line2_start + AD_dir * angle_ADB_length
+        angle_ADB_line2 = Line(angle_ADB_line2_start, angle_ADB_line2_end, color=YELLOW, stroke_width=3)
+        
+        angle_ADB_indicator = VGroup(angle_ADB_line1, angle_ADB_line2)
+        
+        # Угол ACQ (в точке C между AC и CQ)
+        angle_ACQ_length = 0.25
+        AC_dir = (A - C) / np.linalg.norm(A - C)
+        CQ_dir = (Q_point - C) / np.linalg.norm(Q_point - C)
+        
+        # Квадратик для угла ACQ
+        angle_ACQ_line1_start = C + AC_dir * angle_ACQ_length
+        angle_ACQ_line1_end = angle_ACQ_line1_start + CQ_dir * angle_ACQ_length
+        angle_ACQ_line1 = Line(angle_ACQ_line1_start, angle_ACQ_line1_end, color=YELLOW, stroke_width=3)
+        
+        angle_ACQ_line2_start = C + CQ_dir * angle_ACQ_length
+        angle_ACQ_line2_end = angle_ACQ_line2_start + AC_dir * angle_ACQ_length
+        angle_ACQ_line2 = Line(angle_ACQ_line2_start, angle_ACQ_line2_end, color=YELLOW, stroke_width=3)
+        
+        angle_ACQ_indicator = VGroup(angle_ACQ_line1, angle_ACQ_line2)
+        
+        self.play(
+            Create(DB_line),
+            Create(angle_ADB_indicator),
+            Create(angle_ACQ_indicator),
+            run_time=1.5
+        )
 
-if __name__ == "__main__":
-    scene = SemicircleProblem()
-    scene.render()
-
+        # 11. Перпендикуляр из Q на DB
+        # Находим проекцию точки Q на прямую DB
+        DB_vector = B - D
+        QD_vector = Q_point - D
+        projection_length = np.dot(QD_vector, DB_vector) / np.dot(DB_vector, DB_vector)
+        H_point = D + projection_length * DB_vector
+        
+        # Проверяем что H лежит на отрезке DB
+        if projection_length < 0:
+            H_point = D
+        elif projection_length > 1:
+            H_point = B
+        
+        # Перпендикуляр QH
+        QH_line = Line(Q_point, H_point, color=WHITE, stroke_width=3)
+        
+        # Точка H
+        dot_H = Dot(H_point, color=WHITE, radius=0.06)
+        label_H = Text("H", font_size=24, color=WHITE).next_to(H_point, UP, buff=0.1)
+        
+        # Прямой угол QHB (в точке H между QH и HB)
+        angle_QHB_length = 0.2
+        QH_dir = (Q_point - H_point) / np.linalg.norm(Q_point - H_point)
+        HB_dir = (B - H_point) / np.linalg.norm(B - H_point)
+        
+        # Квадратик для угла QHB
+        angle_QHB_line1_start = H_point + QH_dir * angle_QHB_length
+        angle_QHB_line1_end = angle_QHB_line1_start + HB_dir * angle_QHB_length
+        angle_QHB_line1 = Line(angle_QHB_line1_start, angle_QHB_line1_end, color=YELLOW, stroke_width=3)
+        
+        angle_QHB_line2_start = H_point + HB_dir * angle_QHB_length
+        angle_QHB_line2_end = angle_QHB_line2_start + QH_dir * angle_QHB_length
+        angle_QHB_line2 = Line(angle_QHB_line2_start, angle_QHB_line2_end, color=YELLOW, stroke_width=3)
+        
+        angle_QHB_indicator = VGroup(angle_QHB_line1, angle_QHB_line2)
+        
+        self.play(
+            Create(QH_line),
+            Create(dot_H), Write(label_H),
+            Create(angle_QHB_indicator),
+            run_time=1.5
+        )
+        
+        self.wait(3)
+        
 #manim main.py SemiCircleScene -pql
