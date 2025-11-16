@@ -71,18 +71,8 @@ class SemicircleProblem(Scene):
         dot_T = Dot(T, color=WHITE, radius=0.1)
         label_T = Text("T", font_size=32, color=WHITE).next_to(T, DOWN, buff=0.2)
         
-        # Точка E - касание малой и большой окружности
-        # Лежит на линии, соединяющей центры
-        vec_centers = O_small - ORIGIN
-        vec_centers_norm = vec_centers / np.linalg.norm(vec_centers)
-        E = ORIGIN + vec_centers_norm * R_big
-        
-        dot_E = Dot(E, color=WHITE, radius=0.08)
-        label_E = Text("E", font_size=28, color=WHITE).next_to(E, UP, buff=0.15)
-        
         self.play(
             Create(dot_T), Write(label_T),
-            Create(dot_E), Write(label_E),
             run_time=1
         )
         
@@ -188,6 +178,95 @@ class SemicircleProblem(Scene):
             Write(label_15),
             run_time=2
         )
+        
+        self.wait(1)
+        
+        # === ДОПОЛНИТЕЛЬНЫЕ ПОСТРОЕНИЯ ===
+        
+        # 1. Отрезок OE сразу красным цветом
+        line_OE = Line(O_small, E, color=PURPLE, stroke_width=5)
+        
+        # Прямая через O_small и E до пересечения с AB
+        line_dir = (E - O_small) / np.linalg.norm(E - O_small)
+        
+        # Находим пересечение с AB (y = 0)
+        if abs(line_dir[1]) > 1e-6:
+            t_intersect = -O_small[1] / line_dir[1]
+            O_point = O_small + t_intersect * line_dir
+        else:
+            O_point = O_small + line_dir * 5
+        
+        # Проверяем что точка O лежит на отрезке AB
+        if O_point[0] < A[0]:
+            O_point = A
+        elif O_point[0] > B[0]:
+            O_point = B
+        
+        # Прямая O_small -> O (через E)
+        line_O_small_O = Line(O_small, O_point, color=PURPLE, stroke_width=3)
+        
+        # Точка O на AB
+        dot_O = Dot(O_point, color=WHITE, radius=0.08)
+        label_O = Text("O", font_size=28, color=WHITE).next_to(O_point, DOWN, buff=0.15)
+        
+        self.play(
+            Create(line_OE),
+            Create(line_O_small_O),
+            Create(dot_O), Write(label_O),
+            run_time=1.5
+        )
+        
+        # 2. Касательная к полуокружности в точке E (пунктиром)
+        # Касательная перпендикулярна радиусу O_big->E
+        radius_dir = (E - ORIGIN) / np.linalg.norm(E - ORIGIN)
+        tangent_dir = np.array([-radius_dir[1], radius_dir[0], 0])
+        
+        tangent_length = 2.0
+        tangent_start = E - tangent_dir * tangent_length
+        tangent_end = E + tangent_dir * tangent_length
+        tangent_dashed = DashedLine(tangent_start, tangent_end, color=WHITE, stroke_width=2, dash_length=0.1)
+        
+        self.play(Create(tangent_dashed), run_time=1.5)
+        
+        # 3. ПРАВИЛЬНЫЙ уголок - классическое обозначение прямого угла
+        # Вектор направления OE
+        OE_dir = (E - O_small) / np.linalg.norm(E - O_small)
+        
+        # Уголок в точке E - КЛАССИЧЕСКОЕ ОБОЗНАЧЕНИЕ (отзеркаленный квадратик)
+        angle_length = 0.25
+        
+        # Создаем квадратик в угле
+        # Первая линия - вдоль OE (от E в сторону O_small)
+        angle_line1_start = E - OE_dir * angle_length
+        angle_line1_end = angle_line1_start + tangent_dir * angle_length
+        angle_line1 = Line(angle_line1_start, angle_line1_end, color=YELLOW, stroke_width=3)
+        
+        # Вторая линия - вдоль касательной (от E в нужную сторону)  
+        angle_line2_start = E + tangent_dir * angle_length
+        angle_line2_end = angle_line2_start - OE_dir * angle_length
+        angle_line2 = Line(angle_line2_start, angle_line2_end, color=YELLOW, stroke_width=3)
+        
+        # Прямоугольный угол (квадратик в угле)
+        angle_square = VGroup(angle_line1, angle_line2)
+        
+        self.play(Create(angle_square), run_time=1)
+        
+        self.wait(1)
+        
+        # 4. Убираем вспомогательные элементы (кроме OE)
+        self.play(
+            FadeOut(tangent_dashed),
+            FadeOut(angle_square),
+            run_time=1.5
+        )
+        
+        # 5. Подпись R появляется ПОСЛЕ исчезновения касательной
+        R_label = Text("R", font_size=28, color=PURPLE)
+        R_position = O_small + (E - O_small) * 0.5
+        R_label.move_to(R_position)
+        R_label.shift(LEFT * 0.2 + UP * 0.1)
+        
+        self.play(Write(R_label), run_time=1)
         
         # Финальная пауза
         self.wait(3)
