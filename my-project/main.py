@@ -607,4 +607,30 @@ class SemicircleProblem(Scene):
         
         self.wait(3)
 
-#manim main.py SemiCircleScene -pql
+        self.wait(3)
+
+        self.wait(3)
+
+        # Финальная анимация - сдвиг уравнений влево и добавление ответа справа
+        # Сдвигаем оба уравнения влево на том же уровне по Y
+        equation1_target = equation1.copy().move_to(LEFT * 2 + equation1.get_center()[1] * UP)
+        equation2_target = equation2.copy().move_to(LEFT * 2 + equation2.get_center()[1] * UP)
+        
+        # Добавляем ответ справа на том же уровне что первое уравнение
+        answer_text = MathTex(r"\text{Answer: } r=10", font_size=42, color=WHITE)
+        answer_text.move_to(RIGHT * 4 + equation1.get_center()[1]+DOWN*0.5)
+        
+        # Обводим ответ в прямоугольник
+        answer_box = SurroundingRectangle(answer_text, color=WHITE, buff=0.3, stroke_width=3)
+        
+        self.play(
+            Transform(equation1, equation1_target),
+            Transform(equation2, equation2_target),
+            Write(answer_text),
+            Create(answer_box),
+            run_time=2
+        )
+        
+        self.wait(3)
+
+#manim main.py SemiCircleScene -qh
